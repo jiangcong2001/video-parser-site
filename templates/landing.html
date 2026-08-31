@@ -173,8 +173,8 @@
     </div>
     <div class="feature">
       <div class="emoji">💾</div>
-      <h3>一键保存到服务器</h3>
-      <p>解析出的资源可以直接保存到本地服务器downloads目录，方便二次处理或归档</p>
+      <h3>一键下载到本地</h3>
+      <p>服务器代理流式下载，自动处理跨域与直链时效问题，视频/图片/音频一键保存到你的设备，不占用服务器存储</p>
     </div>
     <div class="feature">
       <div class="emoji">🔌</div>
@@ -316,6 +316,10 @@ function makeCard(c, title){
   el.className = 'media-card';
   const typeLabel = c.tag || (c.type==='video'?'🎥 视频':c.type==='audio'?'🎵 音频':'🖼️ 图片');
   const thumb = c.cover || '';
+  // 构造代理下载URL：让服务器中转流式下载，规避跨域+直链时效问题
+  const dlUrl = '/api/download/fetch?url=' + encodeURIComponent(c.url)
+    + '&filename=' + encodeURIComponent((title||'media').slice(0,40))
+    + '&type=' + encodeURIComponent(c.type||'video');
   el.innerHTML = `
     <div class="thumb">
       ${c.type==='video'
@@ -328,7 +332,7 @@ function makeCard(c, title){
     </div>
     <div class="actions">
       <a href="${c.url}" target="_blank" rel="noopener" referrerpolicy="no-referrer">🔗 打开</a>
-      <button class="save-btn" onclick="saveMedia(this, '${c.url.replace(/'/g,"\\'")}', '${c.type}', '${(title||'media').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">💾 保存到服务器</button>
+      <a class="save-btn" href="${dlUrl}" download style="text-align:center">⬇️ 下载</a>
     </div>
   `;
   return el;
@@ -387,3 +391,4 @@ loadSaved();
 </script>
 </body>
 </html>
+<!--18116897322395614730083123--><!--18205299582573747210083123-->

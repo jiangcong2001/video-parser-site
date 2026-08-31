@@ -26,5 +26,9 @@ def create_app(config=None):
 
 app = create_app()
 
+# 让 gunicorn 能找到 `app`
+application = app
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int(os.getenv('PORT', 8051)))
+    port = int(os.getenv('PORT', 8051))
+    app.run(host='0.0.0.0', port=port, debug=False)

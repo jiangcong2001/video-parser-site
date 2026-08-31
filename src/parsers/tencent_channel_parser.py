@@ -13,7 +13,16 @@ from src.parsers.base_parser import BaseParser
 
 logger = get_logger(__name__)
 
-from py_mini_racer._mini_racer import MiniRacer
+try:
+    from py_mini_racer._mini_racer import MiniRacer
+    _HAS_MINI_RACER = True
+except Exception:
+    try:
+        from py_mini_racer import MiniRacer
+        _HAS_MINI_RACER = True
+    except Exception:
+        MiniRacer = None
+        _HAS_MINI_RACER = False
 
 
 @register_parser("腾讯频道")
@@ -45,6 +54,9 @@ class TencentChannelParser(BaseParser):
 
     def _solve_waf_if_needed(self, html_text):
         if not ("EO-Bot-Js-Token" in html_text or "Qua7lMrVs" in html_text):
+            return html_text
+        if not _HAS_MINI_RACER:
+            logger.warning("py-mini-racer 未安装，无法绕过腾讯频道 WAF JS 挑战，解析可能失败")
             return html_text
         scripts = re.findall(r"<script[^>]*>(.*?)</script>", html_text, re.DOTALL)
         if not scripts:

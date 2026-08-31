@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: video-parser
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -c gunicorn_config.py app:app
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DOWNLOAD_DIR
+        value: /opt/render/project/src/downloads
+      - key: SECRET_KEY
+        generateValue: true
