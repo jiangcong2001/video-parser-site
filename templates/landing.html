@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Video Parser · 全网视频图片无水印解析</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  <style>
+    :root{
+      --bg:#0b1020;
+      --bg2:#111733;
+      --card:#161d3a;
+      --card2:#1c2447;
+      --border:#2a345e;
+      --primary:linear-gradient(135deg,#6366f1 0%,#ec4899 100%);
+      --primary-solid:#8b5cf6;
+      --text:#e6e9f5;
+      --muted:#9aa3c7;
+      --success:#10b981;
+      --error:#ef4444;
+      --shadow:0 10px 40px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+    body{min-height:100vh;background:
+      radial-gradient(circle at 10% 0%,rgba(99,102,241,.25),transparent 40%),
+      radial-gradient(circle at 90% 10%,rgba(236,72,153,.22),transparent 40%),
+      radial-gradient(circle at 50% 100%,rgba(16,185,129,.15),transparent 50%),
+      var(--bg);
+    }
+    .container{max-width:1100px;margin:0 auto;padding:32px 20px 60px}
+    /* Header */
+    .header{text-align:center;padding:20px 0 30px}
+    .logo{display:inline-flex;align-items:center;gap:12px;font-size:28px;font-weight:800;background:var(--primary);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.5px}
+    .logo .icon{font-size:32px;-webkit-text-fill-color:initial}
+    .subtitle{color:var(--muted);margin-top:10px;font-size:15px}
+    /* Platform chips */
+    .platforms{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:18px 0 4px}
+    .chip{padding:5px 12px;border-radius:999px;background:var(--card2);border:1px solid var(--border);font-size:12px;color:var(--muted);transition:.2s}
+    .chip:hover{color:var(--text);border-color:var(--primary-solid)}
+    .chip .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--success);margin-right:6px;vertical-align:middle}
+    /* Card */
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;box-shadow:var(--shadow)}
+    .input-wrap{position:relative}
+    textarea{width:100%;min-height:120px;resize:vertical;padding:18px 18px 60px;background:var(--bg2);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-size:15px;font-family:inherit;line-height:1.6;outline:none;transition:.2s}
+    textarea:focus{border-color:var(--primary-solid);box-shadow:0 0 0 4px rgba(139,92,246,.15)}
+    textarea::placeholder{color:#6b739a}
+    .btn-row{display:flex;gap:12px;margin-top:14px;align-items:center;flex-wrap:wrap}
+    button.primary{background:var(--primary);color:#fff;border:none;padding:13px 32px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;gap:8px}
+    button.primary:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(139,92,246,.4)}
+    button.primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .hint{color:var(--muted);font-size:13px}
+    .paste-btn{position:absolute;right:14px;bottom:14px;background:var(--card2);color:var(--text);border:1px solid var(--border);padding:7px 14px;border-radius:8px;font-size:12px;cursor:pointer;transition:.2s}
+    .paste-btn:hover{border-color:var(--primary-solid);color:#fff}
+    /* Spinner */
+    .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    /* Result */
+    .result{margin-top:24px;display:none}
+    .result.show{display:block;animation:fadeUp .4s ease}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .res-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+    .platform-badge{padding:6px 14px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#ec4899);color:#fff;font-size:13px;font-weight:600}
+    .res-title{color:var(--text);font-weight:600;font-size:16px;flex:1;min-width:200px}
+    .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+    .media-card{background:var(--card2);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.2s}
+    .media-card:hover{border-color:var(--primary-solid);transform:translateY(-2px)}
+    .media-card .thumb{position:relative;aspect-ratio:16/10;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .media-card .thumb img,.media-card .thumb video{width:100%;height:100%;object-fit:cover}
+    .media-card .thumb .play{position:absolute;width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+    .media-card .type-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:3px 8px;border-radius:6px}
+    .media-card .actions{display:flex;gap:8px;padding:12px}
+    .media-card .actions a,.media-card .actions button{flex:1;text-align:center;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;text-decoration:none;transition:.15s;border:1px solid var(--border);background:transparent;color:var(--text)}
+    .media-card .actions .save-btn{background:var(--primary);color:#fff;border:none}
+    .media-card .actions a:hover,.media-card .actions button:hover{opacity:.85}
+    /* Author */
+    .author{display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:var(--card2);border-radius:12px;border:1px solid var(--border);width:fit-content}
+    .author img{width:38px;height:38px;border-radius:50%;object-fit:cover;background:#333}
+    .author .name{font-weight:600;font-size:14px}
+    /* Msg */
+    .msg{padding:14px 18px;border-radius:12px;margin-top:18px;display:none;font-size:14px}
+    .msg.error{background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.4);color:#fca5a5;display:block}
+    .msg.success{background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;display:block}
+    /* Features */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:34px}
+    .feature{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;transition:.2s}
+    .feature:hover{border-color:var(--primary-solid);transform:translateY(-2px)}
+    .feature .emoji{font-size:28px;margin-bottom:8px}
+    .feature h3{margin:6px 0;font-size:15px}
+    .feature p{color:var(--muted);font-size:13px;margin:0;line-height:1.5}
+    /* Saved list */
+    .saved{margin-top:30px}
+    .saved h2{font-size:18px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+    .saved-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+    .saved-item{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
+    .saved-item a{color:var(--primary-solid);text-decoration:none;font-weight:500}
+    .saved-item a:hover{text-decoration:underline}
+    .saved-item .fname{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;color:var(--muted)}
+    /* Footer */
+    .footer{text-align:center;color:var(--muted);font-size:13px;margin-top:40px;padding-top:20px;border-top:1px solid var(--border)}
+    .footer a{color:var(--primary-solid);text-decoration:none}
+    /* Responsive */
+    @media(max-width:640px){
+      .container{padding:20px 14px 40px}
+      .card{padding:18px}
+      .logo{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo"><span class="icon">🎬</span> Video Parser</div>
+    <div class="subtitle">全网视频/图片无水印解析 · 支持国内外60+主流平台 · 一键保存</div>
+    <div class="platforms">
+      <span class="chip"><span class="dot"></span>抖音</span>
+      <span class="chip"><span class="dot"></span>快手</span>
+      <span class="chip"><span class="dot"></span>小红书</span>
+      <span class="chip"><span class="dot"></span>B站</span>
+      <span class="chip"><span class="dot"></span>视频号</span>
+      <span class="chip"><span class="dot"></span>微博</span>
+      <span class="chip"><span class="dot"></span>Instagram</span>
+      <span class="chip"><span class="dot"></span>TikTok</span>
+      <span class="chip"><span class="dot"></span>YouTube</span>
+      <span class="chip"><span class="dot"></span>Twitter/X</span>
+      <span class="chip"><span class="dot"></span>Facebook</span>
+      <span class="chip" style="opacity:.7">+ 50+ 平台</span>
+    </div>
+  </div>
+
+  <!-- Parse Card -->
+  <div class="card">
+    <div class="input-wrap">
+      <textarea id="input" placeholder="粘贴视频/图文分享链接或包含链接的文字&#10;&#10;示例：&#10;• 抖音：https://v.douyin.com/xxxxxx/&#10;• 小红书：https://www.xiaohongshu.com/explore/xxxxxx&#10;• Instagram：https://www.instagram.com/p/xxxxxx/&#10;• YouTube：https://youtu.be/xxxxxx&#10;• TikTok：https://www.tiktok.com/@user/video/xxxxxx"></textarea>
+      <button class="paste-btn" onclick="pasteFromClipboard()">📋 粘贴</button>
+    </div>
+    <div class="btn-row">
+      <button class="primary" id="parseBtn" onclick="parseUrl()">
+        <span id="btnText">🔍 开始解析</span>
+      </button>
+      <span class="hint">💡 提示：把APP里点"分享"→"复制链接"，然后粘贴到这里即可</span>
+    </div>
+
+    <div class="msg" id="msg"></div>
+
+    <!-- Result -->
+    <div class="result" id="result">
+      <div class="res-head">
+        <span class="platform-badge" id="resPlatform">平台</span>
+        <span class="res-title" id="resTitle"></span>
+      </div>
+      <div class="author" id="authorBlock" style="display:none">
+        <img id="authorAvatar" src="" onerror="this.style.display='none'"/>
+        <div class="name" id="authorName"></div>
+      </div>
+      <div class="media-grid" id="mediaGrid"></div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features">
+    <div class="feature">
+      <div class="emoji">🌍</div>
+      <h3>国内外通吃</h3>
+      <p>支持抖音、快手、小红书、B站、微博等国内33+平台；同时通过yt-dlp支持Instagram/TikTok/YouTube/Twitter/Facebook等海外平台</p>
+    </div>
+    <div class="feature">
+      <div class="emoji">🖼️</div>
+      <h3>视频+图集+音频</h3>
+      <p>无论是短视频、图文笔记、Live Photo实况还是背景音乐，都能一键提取无水印原文件</p>
+    </div>
+    <div class="feature">
+      <div class="emoji">💾</div>
+      <h3>一键保存到服务器</h3>
+      <p>解析出的资源可以直接保存到本地服务器downloads目录，方便二次处理或归档</p>
+    </div>
+    <div class="feature">
+      <div class="emoji">🔌</div>
+      <h3>提供 JSON API</h3>
+      <p>标准RESTful接口，方便对接小程序、APP、快捷指令或其他第三方工具</p>
+    </div>
+    <div class="feature">
+      <div class="emoji">🐳</div>
+      <h3>Docker 一键部署</h3>
+      <p>提供Dockerfile与docker-compose，一条命令即可上线到自己的服务器</p>
+    </div>
+    <div class="feature">
+      <div class="emoji">🔒</div>
+      <h3>100% 本地解析</h3>
+      <p>核心解析逻辑全部开源本地运行，不经过第三方SaaS，保护隐私与链接安全</p>
+    </div>
+  </div>
+
+  <!-- Saved files -->
+  <div class="saved">
+    <h2>📁 最近保存到服务器的文件 <button class="paste-btn" style="position:static;font-size:12px" onclick="loadSaved()">🔄 刷新</button></h2>
+    <div class="saved-list" id="savedList"><div style="color:var(--muted);font-size:13px">暂无保存的文件</div></div>
+  </div>
+
+  <div class="footer">
+    Built with ❤️ · Flask + yt-dlp · 仅供学习研究使用，请尊重原创版权<br/>
+    API 接口：<code style="background:var(--card2);padding:2px 6px;border-radius:4px">POST /api/parse</code>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = '/api/parse';
+const SAVE_API = '/api/download/save';
+const LIST_API = '/api/download/list';
+
+function showMsg(text, type='error'){
+  const m = $('msg');
+  m.className = 'msg ' + type;
+  m.textContent = text;
+  if(type === 'success') setTimeout(()=>m.className='msg', 3000);
+}
+function hideMsg(){ $('msg').className='msg'; }
+
+async function pasteFromClipboard(){
+  try{
+    const text = await navigator.clipboard.readText();
+    if(text){ $('input').value = text; }
+  }catch(e){ showMsg('无法访问剪贴板，请手动粘贴'); }
+}
+
+function humanSize(bytes){
+  if(bytes<1024) return bytes+'B';
+  if(bytes<1024*1024) return (bytes/1024).toFixed(1)+'KB';
+  return (bytes/1024/1024).toFixed(1)+'MB';
+}
+
+async function parseUrl(){
+  const text = $('input').value.trim();
+  if(!text){ showMsg('请先粘贴分享链接'); return; }
+  hideMsg();
+  $('result').classList.remove('show');
+  const btn = $('parseBtn');
+  btn.disabled = true;
+  $('btnText').innerHTML = '<span class="spinner"></span> 解析中...';
+
+  try{
+    const res = await fetch(API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({text})
+    });
+    const data = await res.json();
+    if(!data.success){
+      showMsg(data.message || '解析失败');
+      return;
+    }
+    renderResult(data.data);
+  }catch(e){
+    showMsg('网络错误：'+e.message);
+  }finally{
+    btn.disabled = false;
+    $('btnText').innerHTML = '🔍 开始解析';
+  }
+}
+
+function renderResult(d){
+  $('resPlatform').textContent = d.platform || '未知平台';
+  $('resTitle').textContent = d.title || '(无标题)';
+
+  // Author
+  if(d.author && d.author.name){
+    $('authorBlock').style.display = 'flex';
+    $('authorName').textContent = d.author.name;
+    $('authorAvatar').src = d.author.avatar || '';
+  }else{
+    $('authorBlock').style.display = 'none';
+  }
+
+  const grid = $('mediaGrid');
+  grid.innerHTML = '';
+  const cards = [];
+
+  // 视频
+  const vids = [];
+  if(d.video_url) vids.push(d.video_url);
+  if(d.video_list) d.video_list.forEach(u=>{ if(u && !vids.includes(u)) vids.push(u); });
+  vids.forEach(url=>{
+    cards.push({type:'video', url, cover:d.cover_url});
+  });
+
+  // 音频
+  if(d.audio_url){
+    cards.push({type:'audio', url:d.audio_url, cover:d.cover_url});
+  }
+
+  // 图集
+  if(d.image_list && d.image_list.length){
+    d.image_list.forEach(img=>{
+      const u = typeof img==='string'?img:img.url;
+      const live = typeof img==='object'?img.live_photo_url:null;
+      if(u) cards.push({type:'image', url:u, cover:u});
+      if(live) cards.push({type:'video', url:live, cover:u, tag:'实况'});
+    });
+  }
+
+  if(cards.length===0){
+    showMsg('解析成功但未获取到媒体资源，可能是链接已失效或需要登录Cookie');
+    return;
+  }
+
+  cards.forEach(c=>grid.appendChild(makeCard(c, d.title)));
+  $('result').classList.add('show');
+  loadSaved();
+}
+
+function makeCard(c, title){
+  const el = document.createElement('div');
+  el.className = 'media-card';
+  const typeLabel = c.tag || (c.type==='video'?'🎥 视频':c.type==='audio'?'🎵 音频':'🖼️ 图片');
+  const thumb = c.cover || '';
+  el.innerHTML = `
+    <div class="thumb">
+      ${c.type==='video'
+        ? (thumb?`<img src="${thumb}" referrerpolicy="no-referrer" onerror="this.style.display='none'"/>`:'') + `<div class="play">▶</div>`
+        : c.type==='audio'
+          ? `<div style="font-size:48px">🎵</div>`
+          : `<img src="${c.url}" referrerpolicy="no-referrer" onerror="this.style.display='none'"/>`
+      }
+      <span class="type-tag">${typeLabel}</span>
+    </div>
+    <div class="actions">
+      <a href="${c.url}" target="_blank" rel="noopener" referrerpolicy="no-referrer">🔗 打开</a>
+      <button class="save-btn" onclick="saveMedia(this, '${c.url.replace(/'/g,"\\'")}', '${c.type}', '${(title||'media').replace(/'/g,"\\'").replace(/"/g,'&quot;')}')">💾 保存到服务器</button>
+    </div>
+  `;
+  return el;
+}
+
+async function saveMedia(btn, url, type, title){
+  const old = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '保存中...';
+  try{
+    const res = await fetch(SAVE_API,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({url, type, title})
+    });
+    const data = await res.json();
+    if(data.success){
+      btn.innerHTML='✅ 已保存';
+      btn.style.background='var(--success)';
+      setTimeout(()=>{ btn.innerHTML=old; btn.style.background=''; btn.disabled=false; loadSaved();}, 1500);
+    }else{
+      btn.innerHTML='❌ 失败';
+      setTimeout(()=>{ btn.innerHTML=old; btn.disabled=false;},1500);
+      showMsg(data.message||'保存失败');
+    }
+  }catch(e){
+    btn.innerHTML='❌ 失败';
+    setTimeout(()=>{ btn.innerHTML=old; btn.disabled=false;},1500);
+  }
+}
+
+async function loadSaved(){
+  try{
+    const res = await fetch(LIST_API);
+    const data = await res.json();
+    const list = $('savedList');
+    if(!data.success || !data.data.files.length){
+      list.innerHTML='<div style="color:var(--muted);font-size:13px">暂无保存的文件</div>';
+      return;
+    }
+    list.innerHTML = data.data.files.map(f=>`
+      <div class="saved-item">
+        <span class="fname" title="${f.filename}">${f.filename}</span>
+        <a href="${f.url}" download>下载</a>
+      </div>
+    `).join('');
+  }catch(e){}
+}
+
+// Enter提交 (Ctrl+Enter)
+$('input').addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==='Enter') parseUrl();
+});
+
+loadSaved();
+</script>
+</body>
+</html>

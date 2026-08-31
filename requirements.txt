@@ -1,0 +1,16 @@
+# 核心框架
+Flask==3.0.3
+gunicorn==23.0.0
+
+# 网络请求与解析
+requests==2.32.3
+beautifulsoup4==4.12.3
+lxml==5.3.0
+
+# 工具与加密
+mini-racer==0.12.4
+pycryptodome==3.20.0
+python-dotenv==1.0.1
+
+# 国外平台解析
+yt-dlp==2024.8.6
