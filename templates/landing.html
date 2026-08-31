@@ -248,8 +248,8 @@ async function parseUrl(){
       body: JSON.stringify({text})
     });
     const data = await res.json();
-    if(!data.success){
-      showMsg(data.message || '解析失败');
+    if(!data.succ){
+      showMsg(data.retdesc || '解析失败');
       return;
     }
     renderResult(data.data);
@@ -266,9 +266,10 @@ function renderResult(d){
   $('resTitle').textContent = d.title || '(无标题)';
 
   // Author
-  if(d.author && d.author.name){
+  const authorName = d.author && (d.author.nickname || d.author.name);
+  if(authorName){
     $('authorBlock').style.display = 'flex';
-    $('authorName').textContent = d.author.name;
+    $('authorName').textContent = authorName;
     $('authorAvatar').src = d.author.avatar || '';
   }else{
     $('authorBlock').style.display = 'none';
@@ -349,14 +350,14 @@ async function saveMedia(btn, url, type, title){
       body: JSON.stringify({url, type, title})
     });
     const data = await res.json();
-    if(data.success){
+    if(data.succ){
       btn.innerHTML='✅ 已保存';
       btn.style.background='var(--success)';
       setTimeout(()=>{ btn.innerHTML=old; btn.style.background=''; btn.disabled=false; loadSaved();}, 1500);
     }else{
       btn.innerHTML='❌ 失败';
       setTimeout(()=>{ btn.innerHTML=old; btn.disabled=false;},1500);
-      showMsg(data.message||'保存失败');
+      showMsg(data.retdesc||'保存失败');
     }
   }catch(e){
     btn.innerHTML='❌ 失败';
@@ -369,7 +370,7 @@ async function loadSaved(){
     const res = await fetch(LIST_API);
     const data = await res.json();
     const list = $('savedList');
-    if(!data.success || !data.data.files.length){
+    if(!data.succ || !data.data.files.length){
       list.innerHTML='<div style="color:var(--muted);font-size:13px">暂无保存的文件</div>';
       return;
     }
@@ -391,4 +392,4 @@ loadSaved();
 </script>
 </body>
 </html>
-<!--18116897322395614730083123--><!--18205299582573747210083123-->
+<!--18116897322395614730083123--><!--18205299582573747210083123--><!--22146311612395614730090100--><!--22238542032395614730090100--><!--22508876112395614730090100--><!--22571354422395614730090100-->
