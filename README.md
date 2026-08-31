@@ -20,25 +20,36 @@
 
 ## 🚀 快速开始
 
-### 方式一：一键部署到免费云平台（推荐，无需服务器）
+### ⭐ 方式一：一键部署到免费云平台（推荐，无需服务器）
 
-#### 🎯 Render（**推荐**，免费、支持Docker完整功能）
+点击下面任意按钮 → 用 GitHub 账号登录 → 等待1-3分钟自动构建 → 获得公网可访问地址！
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/jiangcong2001/video-parser-site)
+| 平台 | 推荐度 | 特点 | 一键部署 |
+|------|--------|------|----------|
+| **Streamlit Community Cloud** | ⭐⭐⭐⭐⭐ | 免费、国内访问稳定、Python原生、无休眠 | [![Deploy to Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=jiangcong2001/video-parser-site&branch=main&mainModule=streamlit_app.py) |
+| **Render** | ⭐⭐⭐⭐ | 免费、支持Docker完整功能、海外平台直连无需代理 | [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/jiangcong2001/video-parser-site) |
+| **Vercel** | ⭐⭐⭐ | 秒级部署、全球CDN加速（大视频>100MB可能超时） | [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jiangcong2001/video-parser-site) |
+| **Replit** | ⭐⭐⭐ | 在线IDE、可在线调试修改代码 | [![Run on Replit](https://replit.com/badge/github/jiangcong2001/video-parser-site)](https://replit.com/new/github/jiangcong2001/video-parser-site) |
+| **Koyeb** | ⭐⭐⭐ | 免费、支持Docker、无休眠机制 | [![Deploy to Koyeb](https://www.koyeb.com/static/images/deploy/button.svg)](https://app.koyeb.com/deploy?name=video-parser&type=git&repository=jiangcong2001/video-parser-site&branch=main&builder=dockerfile&ports=8051;http;/) |
+| **Railway** | ⭐⭐ | 新用户有$5免费额度、支持Docker | [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template?template=https://github.com/jiangcong2001/video-parser-site) |
 
-点击按钮 → 用 GitHub 登录 Render → 确认部署即可。
-- 免费套餐会在闲置时休眠，首次访问需等待约 1 分钟冷启动
-- 部署完成后 Render 会给你一个 `https://xxx.onrender.com` 的公网地址
+> 🇨🇳 **国内用户首选 Streamlit**：访问速度最快、不需要翻墙、部署步骤最简单（点2下就好）。
+> 🌍 **需要解析海外平台（Instagram/YouTube/TikTok）选 Render**：服务器在海外，无需配置代理。
 
-#### ⚡ Vercel（秒级部署，Serverless）
+**Streamlit 超简单部署步骤（30秒搞定）**：
+1. 👆 点击上方黑色的 **"Deploy to Streamlit"** 按钮
+2. 使用 GitHub 账号登录 Streamlit（首次使用需授权邮箱验证）
+3. 页面已自动填好仓库、分支、启动文件，直接点右下角 **"Deploy!"** 按钮
+4. ☕ 等待1-2分钟自动构建，完成后自动跳转到你的在线站点！
+5. 以后每次向 GitHub 推送代码，网站会自动更新部署 ✨
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/jiangcong2001/video-parser-site)
+---
 
-点击按钮 → 用 GitHub 登录 Vercel → 确认导入即可。
-- Vercel 函数执行超时为 60 秒，超大视频（>100MB）建议用 Render
-- 部署完成后访问 `https://你的项目.vercel.app`
+#### 🎯 Render（功能最完整）
+- 免费套餐闲置时会休眠，首次访问约需1分钟冷启动
+- 部署完成后获得 `https://xxx.onrender.com` 公网地址
 
-> **海外平台提示**：Render/Vercel 服务器都在海外，天然可访问 Instagram/TikTok/YouTube 等，无需额外代理。国内平台（抖音/小红书/B站等）解析同样可用。
+> 💡 **海外平台提示**：Render 服务器在海外，天然可直连 Instagram/TikTok/YouTube 等，无需额外代理。
 
 ---
 

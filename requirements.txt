@@ -17,3 +17,6 @@ yt-dlp==2024.8.6
 
 # 可选：抖音 a_bogus/x_bogus 签名（本地强烈建议安装，云平台编译失败可忽略）
 # py-mini-racer==0.12.4   # 需编译V8引擎，云平台可能因内存/时间限制失败；注释掉不影响大部分平台解析
+
+# Streamlit 版本（可选，用于Streamlit Community Cloud部署）
+streamlit>=1.30.0

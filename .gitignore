@@ -11,3 +11,4 @@ downloads/*
 .idea/
 .vscode/
 .DS_Store
+.vercel/
